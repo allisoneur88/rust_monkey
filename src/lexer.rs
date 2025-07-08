@@ -43,6 +43,45 @@ impl Lexer {
             }
             '+' => new_token(PLUS.to_string(), self.ch),
             '-' => new_token(MINUS.to_string(), self.ch),
+            '!' => {
+                if self.peek_char() == '=' {
+                    let ch = self.ch;
+                    self.read_char();
+                    let literal = format!("{}{}", ch, self.ch);
+                    Token {
+                        token_type: NOT_EQ.to_string(),
+                        literal: literal,
+                    }
+                } else {
+                    new_token(BANG.to_string(), self.ch)
+                }
+            }
+            '/' => new_token(SLASH.to_string(), self.ch),
+            '*' => new_token(ASTERISK.to_string(), self.ch),
+            '<' => new_token(LT.to_string(), self.ch),
+            '>' => new_token(GT.to_string(), self.ch),
+            ';' => new_token(SEMICOLON.to_string(), self.ch),
+            '(' => new_token(LPAREN.to_string(), self.ch),
+            ')' => new_token(RPAREN.to_string(), self.ch),
+            ',' => new_token(COMMA.to_string(), self.ch),
+            '{' => new_token(LBRACE.to_string(), self.ch),
+            '}' => new_token(RBRACE.to_string(), self.ch),
+            '\0' => new_token(EOF.to_string(), '\0'),
+            _ => {
+                if is_letter(self.ch) {
+                    Token {
+                        literal: self.read_identifier(),
+                        token_type: lookup_ident(&self.read_identifier()),
+                    }
+                } else if is_digit(self.ch) {
+                    Token {
+                        token_type: INT.to_string(),
+                        literal: self.read_number(),
+                    }
+                } else {
+                    new_token(ILLEGAL.to_string(), self.ch)
+                }
+            }
         };
 
         self.read_char();
